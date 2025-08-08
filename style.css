@@ -1,13 +1,24 @@
+:root {
+  --primary: #1e3d59;
+  --secondary: #ff6e40;
+  --background: #f0f4f8;
+  --text: #333;
+}
+
 body {
-  font-family: Arial, sans-serif;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
   margin: 0;
   padding: 0;
+  background-color: var(--background);
+  color: var(--text);
 }
+
 header {
-  background-color: #0a0a23;
-  color: #fff;
+  background: linear-gradient(135deg, var(--primary), #4a6670);
+  color: #f5f0e1;
   padding: 1rem;
 }
+
 nav ul {
   list-style: none;
   display: flex;
@@ -15,19 +26,99 @@ nav ul {
   gap: 1rem;
   padding: 0;
 }
+
 nav a {
-  color: #fff;
+  color: #f5f0e1;
   text-decoration: none;
 }
+
+nav a:hover {
+  color: var(--secondary);
+}
+
 main {
   padding: 1rem;
 }
+
 section {
   margin-bottom: 2rem;
+  background-color: #fff;
+  border-left: 5px solid var(--secondary);
+  padding: 1rem;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
-footer {
-  background-color: #0a0a23;
+
+.grid {
+  display: flex;
+  gap: 2rem;
+  flex-wrap: wrap;
+}
+
+.grid article {
+  flex: 1 1 200px;
+}
+
+.compare-form div {
+  margin-bottom: 0.5rem;
+}
+
+.compare-form label {
+  margin-right: 0.5rem;
+}
+
+.search-form {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+h3 {
+  margin-top: 0;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+th, td {
+  padding: 0.5rem;
+  border: 1px solid #ddd;
+  text-align: left;
+}
+
+thead {
+  background-color: var(--primary);
+  color: #f5f0e1;
+}
+
+tbody tr:nth-child(even) {
+  background-color: #f9fafb;
+}
+
+button {
+  background-color: var(--secondary);
+  border: none;
+  padding: 0.5rem 1rem;
   color: #fff;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+button:hover {
+  background-color: #ffa372;
+}
+
+input, select {
+  padding: 0.5rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+footer {
+  background-color: var(--primary);
+  color: #f5f0e1;
   text-align: center;
   padding: 1rem;
 }
