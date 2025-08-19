@@ -254,35 +254,6 @@
     .footer{margin-top:24px; font-size:12px; color:var(--muted)}
     .kbd{font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace; background:var(--bg); border:1px solid var(--border); padding:2px 6px; border-radius:8px}
 
-    /* Styles spécifiques pour la section des anecdotes */
-    #anecdote-section h3 {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-    }
-    #anecdote-section p {
-        font-size: 14px;
-        color: var(--muted);
-        line-height: 1.6;
-    }
-    #anecdote-section .anecdote-actions {
-        display: flex;
-        justify-content: flex-end;
-        margin-top: 12px;
-    }
-    .anecdote-btn {
-      padding: 8px 12px;
-      border-radius: 999px;
-      border: 1px solid var(--border);
-      background: var(--bg);
-      color: var(--text);
-      cursor: pointer;
-      font-size: 12px;
-    }
-    .anecdote-btn:hover {
-        border-color: var(--accent);
-    }
-    
     /* NOUVEAUX STYLES pour les tableaux */
     .data-table {
         width: 100%;
@@ -546,13 +517,6 @@
             <div id="manoeuvre-validation-result" class="manoeuvre-result" style="display: none;"></div>
         </div>
         
-        <div class="col" style="margin-top:12px" id="anecdote-section">
-            <h3>Le saviez-vous ?</h3>
-            <p id="anecdote-text" class="muted"></p>
-            <div class="anecdote-actions">
-                <button class="anecdote-btn" id="anecdote-next-btn">Autre anecdote</button>
-            </div>
-        </div>
         <div class="col" style="margin-top:12px">
           <h3>Exporter</h3>
           <button class="btn" id="btnExport">Télécharger le JSON</button>
@@ -605,15 +569,6 @@
     // Voies à marquer comme non accessibles
     const UNAVAILABLE_VOIES = ["59", "63", "79"];
 
-    // Tableau d'anecdotes sur la SNCF
-    const SNCF_ANECDOTES = [
-      "Le viaduc de Garabit, construit par Gustave Eiffel et achevé en 1884, était le plus haut du monde à son époque.",
-      "Le TGV a battu le record du monde de vitesse sur rail en 2007, atteignant 574,8 km/h.",
-      "La SNCF gère l'un des réseaux ferrés les plus denses d'Europe, avec environ 29 000 km de lignes en exploitation.",
-      "Le réseau ferré français est en forme d'étoile, avec Paris en son centre, une structure héritée du 19ème siècle.",
-      "Le nom 'TGV' est une marque déposée, mais il est souvent utilisé comme un nom commun pour désigner un train à grande vitesse en France."
-    ];
-
     // --- DOM Elements ---
     const voiesList = document.getElementById('voiesList');
     const resultZone = document.getElementById('resultZone');
@@ -624,8 +579,6 @@
     const themeToggleIcon = document.getElementById('themeToggleIcon');
     const historyZone = document.getElementById('historyZone');
     const historyList = document.getElementById('historyList');
-    const anecdoteText = document.getElementById('anecdote-text');
-    const anecdoteNextBtn = document.getElementById('anecdote-next-btn');
     const manoeuvresTable = document.getElementById('manoeuvres-table');
     const btnManoeuvreValidate = document.getElementById('btn-manoeuvre-validate');
     const manoeuvreValidationResult = document.getElementById('manoeuvre-validation-result');
@@ -644,12 +597,6 @@
       }
     }
     
-    // --- Fonctions pour les anecdotes ---
-    function displayRandomAnecdote() {
-        const randomIndex = Math.floor(Math.random() * SNCF_ANECDOTES.length);
-        anecdoteText.textContent = SNCF_ANECDOTES[randomIndex];
-    }
-
     // --- Fonctions de gestion de l'historique ---
     function updateHistory(voie) {
         // Enlève la voie si elle existe déjà pour la remettre au début
@@ -945,7 +892,6 @@
             }
         });
         btnExport.addEventListener('click', exportData);
-        anecdoteNextBtn.addEventListener('click', displayRandomAnecdote);
         btnManoeuvreValidate.addEventListener('click', validateManoeuvre);
 
         // Event delegation for maneuver table buttons
@@ -974,7 +920,6 @@
         // Rendu initial
         renderVoies();
         renderHistory();
-        displayRandomAnecdote();
     });
 
   </script>
