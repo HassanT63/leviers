@@ -517,11 +517,6 @@
             <div id="manoeuvre-validation-result" class="manoeuvre-result" style="display: none;"></div>
         </div>
         
-        <div class="col" style="margin-top:12px">
-          <h3>Exporter</h3>
-          <button class="btn" id="btnExport">Télécharger le JSON</button>
-          <p class="hint" style="margin-top:8px">Le fichier contient la table des correspondances utilisée par cette page.</p>
-        </div>
       </aside>
     </section>
 
@@ -574,7 +569,6 @@
     const resultZone = document.getElementById('resultZone');
     const voieInput  = document.getElementById('voieInput');
     const btnSearch = document.getElementById('btnSearch');
-    const btnExport = document.getElementById('btnExport');
     const themeToggleBtn = document.getElementById('themeToggleBtn');
     const themeToggleIcon = document.getElementById('themeToggleIcon');
     const historyZone = document.getElementById('historyZone');
@@ -583,7 +577,7 @@
     const btnManoeuvreValidate = document.getElementById('btn-manoeuvre-validate');
     const manoeuvreValidationResult = document.getElementById('manoeuvre-validation-result');
 
-    let searchHistory = JSON.parse(localStorage.getItem('searchHistory')) || [];
+    let searchHistory = (localStorage.getItem('searchHistory') || '').split(',').filter(Boolean);
     const HISTORY_MAX_ITEMS = 3; // Limite de l'historique
 
     // --- Fonctions de gestion du thème ---
@@ -607,7 +601,7 @@
         if (searchHistory.length > HISTORY_MAX_ITEMS) {
             searchHistory.pop();
         }
-        localStorage.setItem('searchHistory', JSON.stringify(searchHistory));
+        localStorage.setItem('searchHistory', searchHistory.join(','));
         renderHistory();
     }
 
@@ -736,22 +730,6 @@
                 </div>
             </div>
         `;
-    }
-
-    /**
-     * Exporte les données au format JSON.
-     */
-    function exportData() {
-        const dataStr = JSON.stringify(DATA, null, 2);
-        const blob = new Blob([dataStr], { type: 'application/json' });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = 'correspondances_voies_leviers.json';
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        URL.revokeObjectURL(url);
     }
 
     /**
@@ -891,7 +869,6 @@
                 search();
             }
         });
-        btnExport.addEventListener('click', exportData);
         btnManoeuvreValidate.addEventListener('click', validateManoeuvre);
 
         // Event delegation for maneuver table buttons
