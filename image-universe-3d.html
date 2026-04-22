@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Univers 3D — Nuit spirituelle</title>
+  <style>
+    :root {
+      --bg: #020617;
+      --card: rgba(15, 23, 42, 0.75);
+      --text: #e2e8f0;
+      --muted: #94a3b8;
+      --accent: #38bdf8;
+      --border: rgba(148, 163, 184, 0.35);
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      color: var(--text);
+      background: radial-gradient(circle at top, #0b173a, var(--bg) 55%);
+      min-height: 100vh;
+      overflow: hidden;
+    }
+    #app { position: fixed; inset: 0; }
+    #ui {
+      position: fixed;
+      top: 16px;
+      left: 16px;
+      width: min(420px, calc(100vw - 32px));
+      padding: 14px;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      background: var(--card);
+      backdrop-filter: blur(8px);
+      z-index: 20;
+    }
+    h1 {
+      margin: 0 0 8px;
+      font-size: 1.1rem;
+    }
+    p {
+      margin: 0 0 10px;
+      font-size: .92rem;
+      color: var(--muted);
+      line-height: 1.4;
+    }
+    .row { display: flex; gap: 8px; align-items: center; margin-top: 8px; }
+    input[type="file"] {
+      width: 100%;
+      font-size: .9rem;
+      color: var(--muted);
+    }
+    button {
+      border: 1px solid var(--border);
+      color: var(--text);
+      background: rgba(2, 6, 23, .7);
+      border-radius: 10px;
+      padding: 8px 10px;
+      cursor: pointer;
+      font-weight: 600;
+    }
+    button:hover { border-color: var(--accent); }
+    #status { margin-top: 8px; font-size: .82rem; color: var(--muted); }
+  </style>
+</head>
+<body>
+  <div id="app"></div>
+
+  <aside id="ui">
+    <h1>Version 3D de ton univers</h1>
+    <p>
+      Charge l'image pour l'intégrer en avant-plan (effet relief 2.5D), avec un décor nocturne
+      inspiré de la scène: ciel étoilé, croissant de lune, architecture lumineuse et sol réfléchissant.
+    </p>
+    <input id="imageInput" type="file" accept="image/*" />
+    <div class="row">
+      <button id="resetCamera">Réinitialiser caméra</button>
+      <button id="toggleRotate">Rotation auto</button>
+    </div>
+    <div id="status">Astuce: clic gauche + glisser pour tourner la vue, molette pour zoomer.</div>
+  </aside>
+
+  <script type="module">
+    import * as THREE from 'https://unpkg.com/three@0.163.0/build/three.module.js';
+    import { OrbitControls } from 'https://unpkg.com/three@0.163.0/examples/jsm/controls/OrbitControls.js';
+
+    const app = document.getElementById('app');
+    const scene = new THREE.Scene();
+    scene.fog = new THREE.FogExp2(0x020617, 0.035);
+
+    const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 300);
+    camera.position.set(0, 3.7, 12);
+
+    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.outputColorSpace = THREE.SRGBColorSpace;
+    app.appendChild(renderer.domElement);
+
+    const controls = new OrbitControls(camera, renderer.domElement);
+    controls.enableDamping = true;
+    controls.target.set(0, 2, 0);
+    controls.minDistance = 5;
+    controls.maxDistance = 26;
+    controls.maxPolarAngle = Math.PI * 0.49;
+
+    const hemi = new THREE.HemisphereLight(0x8db4ff, 0x0f172a, 0.6);
+    scene.add(hemi);
+    const moonLight = new THREE.DirectionalLight(0xbfd7ff, 1.5);
+    moonLight.position.set(-8, 12, -4);
+    scene.add(moonLight);
+
+    const starsGeo = new THREE.BufferGeometry();
+    const count = 3000;
+    const positions = new Float32Array(count * 3);
+    for (let i = 0; i < count; i++) {
+      const r = 80 + Math.random() * 70;
+      const theta = Math.random() * Math.PI * 2;
+      const phi = Math.acos(2 * Math.random() - 1);
+      positions[i * 3] = r * Math.sin(phi) * Math.cos(theta);
+      positions[i * 3 + 1] = Math.abs(r * Math.cos(phi));
+      positions[i * 3 + 2] = r * Math.sin(phi) * Math.sin(theta);
+    }
+    starsGeo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+    const stars = new THREE.Points(
+      starsGeo,
+      new THREE.PointsMaterial({ color: 0xffffff, size: 0.22, sizeAttenuation: true })
+    );
+    scene.add(stars);
+
+    const moon = new THREE.Mesh(
+      new THREE.SphereGeometry(1.1, 32, 32),
+      new THREE.MeshStandardMaterial({ color: 0xe2ecff, emissive: 0x223355, roughness: 0.4 })
+    );
+    moon.position.set(-8, 10, -20);
+    scene.add(moon);
+
+    const floor = new THREE.Mesh(
+      new THREE.PlaneGeometry(80, 80),
+      new THREE.MeshStandardMaterial({
+        color: 0x0f172a,
+        roughness: 0.12,
+        metalness: 0.9,
+        emissive: 0x020617,
+      })
+    );
+    floor.rotation.x = -Math.PI / 2;
+    floor.position.y = 0;
+    scene.add(floor);
+
+    const mosque = new THREE.Group();
+    const base = new THREE.Mesh(
+      new THREE.BoxGeometry(8, 2.3, 3.6),
+      new THREE.MeshStandardMaterial({ color: 0xe5e7eb, emissive: 0x2b1f0b, emissiveIntensity: 0.25 })
+    );
+    base.position.set(0, 1.15, -4.5);
+    mosque.add(base);
+
+    function makeDome(x, y, z, r = 0.9) {
+      const dome = new THREE.Mesh(
+        new THREE.SphereGeometry(r, 32, 20, 0, Math.PI * 2, 0, Math.PI / 2),
+        new THREE.MeshStandardMaterial({ color: 0xf8fafc, emissive: 0x5b3b11, emissiveIntensity: 0.35 })
+      );
+      dome.position.set(x, y, z);
+      mosque.add(dome);
+    }
+    makeDome(0, 2.3, -4.5, 1.3);
+    makeDome(-2.2, 2.05, -4.8, 0.78);
+    makeDome(2.2, 2.05, -4.8, 0.78);
+
+    function makeMinaret(x, z) {
+      const group = new THREE.Group();
+      const shaft = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.24, 0.32, 4.8, 14),
+        new THREE.MeshStandardMaterial({ color: 0xf1f5f9 })
+      );
+      shaft.position.y = 2.4;
+      const top = new THREE.Mesh(
+        new THREE.SphereGeometry(0.27, 16, 12),
+        new THREE.MeshStandardMaterial({ color: 0xfbbf24, emissive: 0xf59e0b, emissiveIntensity: 0.6 })
+      );
+      top.position.y = 4.95;
+      group.add(shaft, top);
+      group.position.set(x, 0, z);
+      mosque.add(group);
+    }
+    makeMinaret(-3.9, -3.2);
+    makeMinaret(3.9, -3.2);
+    scene.add(mosque);
+
+    const textureLoader = new THREE.TextureLoader();
+    let photoMesh = null;
+
+    function createHeightMap(image) {
+      const c = document.createElement('canvas');
+      c.width = 512;
+      c.height = 512;
+      const ctx = c.getContext('2d');
+      ctx.drawImage(image, 0, 0, 512, 512);
+      const imgData = ctx.getImageData(0, 0, 512, 512);
+      for (let i = 0; i < imgData.data.length; i += 4) {
+        const gray = (imgData.data[i] * 0.299 + imgData.data[i + 1] * 0.587 + imgData.data[i + 2] * 0.114);
+        imgData.data[i] = gray;
+        imgData.data[i + 1] = gray;
+        imgData.data[i + 2] = gray;
+      }
+      ctx.putImageData(imgData, 0, 0);
+      const tex = new THREE.CanvasTexture(c);
+      tex.needsUpdate = true;
+      return tex;
+    }
+
+    function addPhoto(url) {
+      const image = new Image();
+      image.onload = () => {
+        const colorTex = textureLoader.load(url);
+        colorTex.colorSpace = THREE.SRGBColorSpace;
+        const displacementTex = createHeightMap(image);
+
+        if (photoMesh) scene.remove(photoMesh);
+
+        const ratio = image.width / image.height;
+        const geometry = new THREE.PlaneGeometry(6.2 * ratio, 6.2, 280, 280);
+        const material = new THREE.MeshStandardMaterial({
+          map: colorTex,
+          displacementMap: displacementTex,
+          displacementScale: 0.75,
+          metalness: 0.1,
+          roughness: 0.88,
+        });
+
+        photoMesh = new THREE.Mesh(geometry, material);
+        photoMesh.position.set(-3.5, 2.4, 1.8);
+        photoMesh.rotation.y = 0.3;
+        scene.add(photoMesh);
+
+        document.getElementById('status').textContent = 'Image intégrée ✅ Relief généré (2.5D).';
+      };
+      image.src = url;
+    }
+
+    const defaultGradient = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(`
+      <svg xmlns="http://www.w3.org/2000/svg" width="1024" height="768">
+        <defs>
+          <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" stop-color="#0f172a"/>
+            <stop offset="65%" stop-color="#1e293b"/>
+            <stop offset="100%" stop-color="#334155"/>
+          </linearGradient>
+        </defs>
+        <rect width="100%" height="100%" fill="url(#g)"/>
+        <circle cx="820" cy="140" r="66" fill="#dbeafe" opacity=".8"/>
+      </svg>
+    `);
+    addPhoto(defaultGradient);
+
+    document.getElementById('imageInput').addEventListener('change', (e) => {
+      const file = e.target.files?.[0];
+      if (!file) return;
+      const url = URL.createObjectURL(file);
+      addPhoto(url);
+    });
+
+    let autoRotate = true;
+    document.getElementById('toggleRotate').addEventListener('click', () => {
+      autoRotate = !autoRotate;
+      document.getElementById('status').textContent = autoRotate
+        ? 'Rotation auto activée.'
+        : 'Rotation auto désactivée.';
+    });
+
+    document.getElementById('resetCamera').addEventListener('click', () => {
+      camera.position.set(0, 3.7, 12);
+      controls.target.set(0, 2, 0);
+      controls.update();
+      document.getElementById('status').textContent = 'Caméra réinitialisée.';
+    });
+
+    function animate() {
+      requestAnimationFrame(animate);
+      if (autoRotate) {
+        stars.rotation.y += 0.0006;
+        mosque.rotation.y += 0.0012;
+      }
+      controls.update();
+      renderer.render(scene, camera);
+    }
+    animate();
+
+    window.addEventListener('resize', () => {
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+    });
+  </script>
+</body>
+</html>
